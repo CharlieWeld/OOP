@@ -1,0 +1,50 @@
+from coordinate import Coordinate#user defined
+import threading
+import shell #user defined
+from gui import create_gui #user defined
+
+from tkinter import *
+
+
+
+def main():
+
+    ################    Read Lists from File    #########################
+    airport_names = []
+    airport_coordinates = []
+    temp = []
+
+    fread = open("airport_names.txt", 'r')
+    for line in fread:
+        name, lat, long = line.strip().split(',')
+        airport_names.append(name)
+        temp.append(float(lat.strip('[')))
+        temp.append(float(long.strip(']')))
+        airport_coordinates.append(temp)
+        temp=[]
+    fread.close()
+    ########################   End reading from file     ###############
+    #Create dictionary
+    airport_codes = {}
+    for index, value in enumerate(airport_names):
+        airport_codes[value] = airport_coordinates[index]
+
+    #This allows the shell and the gui to run together
+    #The GUI uses a mainloop with takes up all main's time
+    thread_1 = threading.Thread(target=shell.shell_function, args=(airport_names,airport_coordinates, airport_codes))
+    thread_1.start()
+    #print("Hell")
+    for i in range(0,100000): #Small delay to let the thread start
+        pass
+    
+    #This creates a new windows
+    #The code is in another module because it is messy and not very well commented
+    #Need more time to improve it
+    root = Tk()
+    root.geometry("400x400+200+200")
+    create_gui(root, airport_names, airport_coordinates, airport_codes) #Call the gui class to draw the widgets on frame
+    root.mainloop() #Keep gui loop going until the close button is pressed
+    print("Finished")
+    
+if __name__ == '__main__': 
+    main()
